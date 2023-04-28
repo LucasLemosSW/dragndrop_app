@@ -44,12 +44,12 @@ const SignIn = ({navigation}) => {
         storeUserSession(email, password);
         await auth().signInWithEmailAndPassword(email, password);
         if (auth().currentUser.emailVerified) {
-          navigation.dispatch(
-            CommonActions.reset({
-              index: 0,
-              routes: [{name: 'AppStack'}],
-            }),
-          );
+          // navigation.dispatch(
+          //   CommonActions.reset({
+          //     index: 0,
+          //     routes: [{name: 'AppStack'}],
+          //   }),
+          // );
         } else {
           Alert.alert('Email não verificado');
         }

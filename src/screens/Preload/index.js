@@ -9,6 +9,7 @@ const Preload = ({navigation}) => {
   async function retrieveUserSession() {
     try {
       const session = await EncryptedStorage.getItem('user_session');
+      // await EncryptedStorage.removeItem('user_session');
 
       if (session !== {} || session !== undefined) {
         return JSON.parse(session);
@@ -23,10 +24,8 @@ const Preload = ({navigation}) => {
   const entrar = async () => {
     const sessionUser = await retrieveUserSession();
 
-    // console.log("token: ", sessionUser);
-    navigation.navigate('SignIn');
+    console.log("USUARIO:: ",sessionUser);
     if (sessionUser) {
-      console.log('chegouuuu');
       if (sessionUser.emailLocal !== '' && sessionUser.pass !== '') {
         try {
           await auth().signInWithEmailAndPassword(
@@ -36,7 +35,7 @@ const Preload = ({navigation}) => {
           navigation.dispatch(
             CommonActions.reset({
               index: 0,
-              routes: [{name: 'AppStack'}],
+              routes: [{name: 'Alunos'}],
             }),
           );
         } catch (error) {
@@ -65,8 +64,7 @@ const Preload = ({navigation}) => {
       //     routes: [{name: 'AuthStack'}],
       //   }),
       // );
-      navigation.navigate('SignIn');
-      console.log('caiu no else');
+      // navigation.navigate('SignIn');
     }
   };
 

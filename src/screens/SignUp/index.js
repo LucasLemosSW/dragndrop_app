@@ -24,15 +24,16 @@ const SignUp = ({navigation}) => {
       .createUserWithEmailAndPassword(email, password)
       .then(async () => {
         await auth().currentUser.sendEmailVerification();
-        console.log('User account created & signed in!', email);
+        navigation.navigate('SignIn');
+        // console.log('User account created & signed in!', email);
       })
       .catch(error => {
         if (error.code === 'auth/email-already-in-use') {
-          console.log('That email address is already in use!');
+          // console.log('That email address is already in use!');
         }
 
         if (error.code === 'auth/invalid-email') {
-          console.log('That email address is invalid!');
+          // console.log('That email address is invalid!');
         }
 
         console.error(error);

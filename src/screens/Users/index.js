@@ -6,7 +6,7 @@ import auth from '@react-native-firebase/auth';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import {CommonActions} from '@react-navigation/native';
 
-const Home = ({navigation}) => {
+const Users = ({navigation}) => {
   const [cont, setCont] = useState(0);
 
   //useEffect(() => {}, []);
@@ -66,4 +66,4 @@ const Home = ({navigation}) => {
     </View>
   );
 };
-export default Home;
+export default Users;
