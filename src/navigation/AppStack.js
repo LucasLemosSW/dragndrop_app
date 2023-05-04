@@ -14,8 +14,7 @@ const Stack = createNativeStackNavigator();
 
 export default function AppStack() {
   return (
-    <Stack.Navigator initialRouteName="Preload">
-      <Stack.Screen name="Preload" component={Preload} options={preloadStyle} />
+    <Stack.Navigator initialRouteName="Alunos">
       <Stack.Screen name="Alunos" component={Students} options={alunosStyle} />
       <Stack.Screen name="Aluno" component={Student} options={alunoStyle} />
       <Stack.Screen name="Cursos" component={Courses} options={cursosStyle} />

@@ -6,6 +6,11 @@ export const Container = styled.SafeAreaView`
   justify-content: center;
 `;
 
+export const FlatList = styled.FlatList`
+  width: 95%;
+  height: 100%;
+`;
+
 export const Text = styled.Text`
   font-size: 24px;
 `;

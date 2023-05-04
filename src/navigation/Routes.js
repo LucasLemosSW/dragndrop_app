@@ -14,7 +14,7 @@ export default function Routes() {
   useEffect(() => {
     // inscreve um handler para o user state changes
     const unsubscriber = auth().onAuthStateChanged((authUser) => {
-      console.log("ROUTES: ",authUser);
+      // console.log("ROUTES: ",authUser);
       authUser ? setUser(authUser) : setUser(null);
       if (initializing) {
         setInitializing(false);
