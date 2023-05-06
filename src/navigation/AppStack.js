@@ -25,10 +25,6 @@ export default function AppStack() {
   );
 }
 
-const preloadStyle = {
-  headerShown: false,
-};
-
 const alunosStyle = {
   title: 'Alunos',
 };

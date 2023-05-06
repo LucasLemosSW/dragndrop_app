@@ -12,14 +12,11 @@ const StudentsTab = ({navigation}) => {
   // const [loading, setLoading] = useState(true);
   const {students} = useContext(StudentContext);
 
-  const routeStudent = (item) => {
-    //console.log(item);
-    navigation.dispatch(
-      CommonActions.navigate({
-        name: 'Aluno',
-        params: {student: item},
-      }),
-    );
+  const routeStudent = value => {
+    // console.log(value.nome);
+    navigation.navigate('Aluno', {
+      value,
+    });
   };
 
   const routeAddStudent = () => {

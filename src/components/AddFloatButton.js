@@ -20,7 +20,7 @@ const Button = styled.TouchableOpacity`
 const AddFloatButton = ({onClick}) => {
   return (
     <Button onPress={() => onClick()}>
-      <Icon name="add" size={30} color={COLORS.white} />
+      <Icon name="add" size={30} color="white" />
     </Button>
   );
 };

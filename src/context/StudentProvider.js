@@ -20,6 +20,22 @@ export const StudentProvider = ({children}) => {
     ToastAndroid.show(message, ToastAndroid.SHORT);
   };
 
+  const save = async estudante => {
+    try {
+      await firestore().collection('estudantes').doc(estudante.uid).set(
+        {
+          nome: estudante.nome,
+          curso: estudante.curso,
+        },
+        {merge: true},
+      );
+      return true;
+    } catch (e) {
+      console.error('EstudanteProvider, salvar: ' + e);
+      return false;
+    }
+  };
+
   const getStudents = async () => {
     
     const unsubscribe = firestore()
@@ -93,7 +109,7 @@ export const StudentProvider = ({children}) => {
       value={{
         students,
         getStudents,
-        saveStudent,
+        save,
         deleteStudent,
       }}>
       {children}
