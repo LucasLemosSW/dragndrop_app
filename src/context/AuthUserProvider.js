@@ -1,47 +1,36 @@
-// import React, {useState} from 'react';
-// import {createContext} from 'react';
-
-// export const AuthUserContext = createContext({});
-
-// export const AuthUserProvider = ({children}) => {
-//   const [user, setUser] = useState(null);
-
-//   return (
-//     <AuthUserContext.Provider value={(user, setUser)}>
-//       {children}
-//     </AuthUserContext.Provider>
-//   );
-// };
-
 import React, {useState, createContext} from 'react';
+import EncryptedStorage from 'react-native-encrypted-storage';
 import {Alert} from 'react-native';
-// import AsyncStorage from '@react-native-async-storage/async-storage';
-// import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
 
 export const AuthUserContext = createContext({});
 
 export const AuthUserProvider = ({children}) => {
   const [user, setUser] = useState(null);
 
-  /* Asyncstorage */
-  const storeUserCache = async (value) => {
+  async function storeUserSession(localEmail, pass) {
     try {
-      const jsonValue = JSON.stringify(value);
-      await AsyncStorage.setItem('user', jsonValue);
+      await EncryptedStorage.setItem(
+        'user_session',
+        JSON.stringify({
+          email: localEmail,
+          pass,
+        }),
+      );
     } catch (e) {
-      console.error('AuthUserProvider: erro ao salvar o user no cache: ' + e);
+      console.error('AuthUserProvider, storeUserSession: ' + e);
     }
-  };
+  }
 
-  const getUserCache = async () => {
+  async function retrieveUserSession() {
     try {
-      const jsonValue = await AsyncStorage.getItem('user');
-      return jsonValue !== null ? jsonValue : null;
+      const session = await EncryptedStorage.getItem('user_session');
+      return session !== null ? JSON.parse(session) : null;
     } catch (e) {
-      console.error('AuthUserProvider: erro ao ler o user no cache: ' + e);
+      console.error('AuthUserProvider, retrieveUserSession: ' + e);
     }
-  };
+  }
   /* Fim Asyncstorage */
 
   /* SignUp, SignIn, e SignOut */
@@ -96,95 +85,97 @@ export const AuthUserProvider = ({children}) => {
       });
   };
 
-  const signIn = async (email, pass) => {
-    console.log("EMAIL: ",email)
-    console.log("PASS: ",pass)
-    await auth()
-      .signInWithEmailAndPassword(email, pass)
-      .then(() => {
-        if (auth().currentUser.emailVerified) {
-          getUser(pass);
-        } else {
-          Alert.alert(
-            'Erro',
-            'Você deve verificar o seu email para prosseguir.',
-          );
-          auth()
-            .signOut()
-            .then(() => {})
-            .catch((e) => {
-              console.error('AuthUserProvider, signIn: ' + e);
-            });
-        }
-        return 'foi';
-      })
-      .catch((e) => {
-        console.error('AuthUserProvider: erro em signIn: ' + e);
-        switch (e.code) {
-          case 'auth/user-not-found':
-            Alert.alert('Erro', 'Usuário não cadastrado.');
-            break;
-          case 'auth/wrong-password':
-            Alert.alert('Erro', 'Erro na senha.');
-            break;
-          case 'auth/invalid-email':
-            Alert.alert('Erro', 'Email inválido.');
-            break;
-          case 'auth/user-disabled':
-            Alert.alert('Erro', 'Usuário desabilitado.');
-            break;
-        }
-      });
-  };
+  async function signIn(email, pass) {
+    try {
+      await auth().signInWithEmailAndPassword(email, pass);
+      if (!auth().currentUser.emailVerified) {
+        return 'Você deve validar seu email para continuar.';
+      }
+      // console.log("INFO: ",email,pass);
+      await storeUserSession(email, pass);
+      return 'ok';
+      // if (!(await getUser(pass))) {
+      //   userLocal.pass = pass;
+      //   setUser(userLocal);
+      //   return 'ok';
+      // } else {
+      //   return 'Problemas ao buscar o seu perfil. Contate o administrador.';
+      // }
+    } catch (e) {
+      return launchServerMessageErro(e);
+    }
+  }
 
-  const sigOut = () => {
-    setUser(null);
-    AsyncStorage.removeItem('user')
-      .then(() => {
-        auth()
-          .signOut()
-          .then(() => {})
-          .catch((e) => {
-            console.error('AuthUserProvider, sigOut: ' + e);
-          });
-      })
-      .catch((e) => {
-        console.error('AuthUserProvider, sigOut chache: ' + e);
-      });
-  };
+  async function forgotPass(email) {
+    try {
+      await auth().sendPasswordResetEmail(email);
+      return 'ok';
+    } catch (e) {
+      return launchServerMessageErro(e);
+    }
+  }
+
+  async function signOut() {
+    try {
+      setUser(null);
+      await EncryptedStorage.removeItem('user_session');
+      if (auth().currentUser) {
+        await auth().signOut();
+      }
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
   /* Fim SignUp, SignIn, e SignOut */
 
-  //busca os detalhes do user no nó users e faz cache
-  const getUser = async (pass) => {
-    firestore()
-      .collection('users')
-      .doc(auth().currentUser.uid)
-      .get()
-      .then((doc) => {
-        if (doc.exists) {
-          //console.log('Document data:', doc.data());
-          doc.data().pass = pass;
-          storeUserCache(doc.data());
-          return doc.data();
-        } else {
-          console.log('AuthUserProvider, getUser: documento não localizado');
-        }
-      })
-      .catch((e) => {
-        console.error('AuthUserProvider: getUser: ' + e);
-      });
-  };
+  async function getUser(pass) {
+    try {
+      let doc = await firestore()
+        .collection('estudantes').get();
+        console.log("DOC:", doc);
+        // .doc(auth().currentUser.uid)
+        // .get();
+      if (doc.exists) {
+        //console.log('Document data:', doc.data());
+        doc.data().uid = auth().currentUser.uid;
+        doc.data().pass = pass;
+        setUser(doc.data());
+        return doc.data();
+      }
+      return null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function launchServerMessageErro(e) {
+    switch (e.code) {
+      case 'auth/user-not-found':
+        return 'Usuário não cadastrado.';
+      case 'auth/wrong-password':
+        return 'Erro na senha.';
+      case 'auth/invalid-email':
+        return 'Email inválido.';
+      case 'auth/user-disabled':
+        return 'Usuário desabilitado.';
+      case 'auth/email-already-in-use':
+        return 'Email em uso. Tente outro email.';
+      default:
+        return 'Erro desconhecido. Contate o administrador';
+    }
+  }
 
   return (
     <AuthUserContext.Provider
       value={{
+        user,
         signUp,
         signIn,
-        sigOut,
-        user,
-        setUser,
+        retrieveUserSession,
+        forgotPass,
+        signOut,
         getUser,
-        getUserCache,
       }}>
       {children}
     </AuthUserContext.Provider>

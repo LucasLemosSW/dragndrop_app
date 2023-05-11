@@ -1,88 +1,47 @@
 import React, {useEffect, useContext} from 'react';
-import {View, Text} from 'react-native';
+import {Container, Image} from './styles';
 import {Alert} from 'react-native';
-import EncryptedStorage from 'react-native-encrypted-storage';
-import auth from '@react-native-firebase/auth';
 import {CommonActions} from '@react-navigation/native';
 import { AuthUserContext } from '../../context/AuthUserProvider';
 
 const Preload = ({navigation}) => {
-  const {user, setUser, getUserCache} = useContext(AuthUserContext);
 
-  async function retrieveUserSession() {
-    try {
-      const session = await EncryptedStorage.getItem('user_session');
-
-      if (session !== {} || session !== undefined) {
-        return JSON.parse(session);
-      }
-      return null;
-    } catch (error) {
-      console.error('Preload, retrieveUserSession' + error);
-      return null;
-    }
-  }
-
-
-  useEffect(() => {
-    entrar();
-
-  });
+  const {retrieveUserSession, signIn} = useContext(AuthUserContext);
 
   const entrar = async () => {
-    const sessionUser = await retrieveUserSession();
+    const userSession = await retrieveUserSession();
 
-    console.log("token: ", sessionUser);
-    if (sessionUser) {
-      console.log('chegouuuu');
-      if (sessionUser.emailLocal !== '' && sessionUser.pass !== '') {
-        try {
-          await auth().signInWithEmailAndPassword(
-            sessionUser.emailLocal,
-            sessionUser.pass,
-          );
-          navigation.dispatch(
-            CommonActions.reset({
-              index: 0,
-              routes: [{name: 'Alunos'}],
-            }),
-          );
-        } catch (error) {
-          // setLoading(false);
-          console.error('SignIn, entrar: ' + error);
-          switch (error.code) {
-            case 'auth/user-not-found':
-              Alert.alert('Erro', 'Usuário não cadastrado.');
-              break;
-            case 'auth/wrong-password':
-              Alert.alert('Erro', 'Erro na senha.');
-              break;
-            case 'auth/invalid-email':
-              Alert.alert('Erro', 'Email inválido.');
-              break;
-            case 'auth/user-disabled':
-              Alert.alert('Erro', 'Usuário desabilitado.');
-              break;
-          }
-        }
-      }
+    if (
+      userSession &&
+      (await signIn(userSession.email, userSession.pass)) === 'ok'
+    ) {
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{name: 'AppStack'}],
+        }),
+      );
     } else {
-      // navigation.dispatch(
-      //   CommonActions.reset({
-      //     index: 0,
-      //     routes: [{name: 'AuthStack'}],
-      //   }),
-      // );
-      navigation.navigate('SignIn');
-      console.log('caiu no else');
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{name: 'SignIn'}],
+        }),
+      );
     }
   };
 
+  useEffect(() => {
+    entrar();
+  }, []);
 
   return (
-    <View>
-      <Text>Preload</Text>
-    </View>
+    <Container>
+      <Image
+        source={require('../../assets/images/logo.png')}
+        accessibilityLabel="logo do app"
+      />
+    </Container>
   );
 };
 

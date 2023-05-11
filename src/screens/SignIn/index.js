@@ -1,78 +1,43 @@
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
+import MyButtom from '../../components/MyButtom';
 import {
-  StyleSheet,
   SafeAreaView,
   ScrollView,
+  View,
+  StyleSheet,
+  Text,
   Image,
   TextInput,
-  View,
-  Text,
   Alert,
 } from 'react-native';
-import MyButtom from '../../components/MyButtom';
-import auth from '@react-native-firebase/auth';
 import {CommonActions} from '@react-navigation/native';
-import EncryptedStorage from 'react-native-encrypted-storage';
-
-// import { Container } from './styles';
+import {COLORS} from '../../assets/colors';
+import Loading from '../../components/Loading';
+import {AuthUserContext} from '../../context/AuthUserProvider';
 
 const SignIn = ({navigation}) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  // const [loading, setLoading] = useState(false);
-  const [showPass, setShowPass] = useState(true);
-
-  async function storeUserSession(emailLocal, pass) {
-    try {
-      await EncryptedStorage.setItem(
-        'user_session',
-        JSON.stringify({
-          emailLocal,
-          pass,
-        }),
-      );
-
-      // Congrats! You've just stored your first value!
-    } catch (error) {
-      // There was an error on the native side
-    }
-  }
+  const [loading, setLoading] = useState(false);
+  const {signIn} = useContext(AuthUserContext);
 
   const entrar = async () => {
-    if (email !== '' && password !== '') {
-      try {
-        storeUserSession(email, password);
-        await auth().signInWithEmailAndPassword(email, password);
-        if (auth().currentUser.emailVerified) {
-          // navigation.dispatch(
-          //   CommonActions.reset({
-          //     index: 0,
-          //     routes: [{name: 'AppStack'}],
-          //   }),
-          // );
-        } else {
-          Alert.alert('Email não verificado');
-        }
-      } catch (error) {
-        // setLoading(false);
-        console.error('SignIn, entrar: ' + error);
-        switch (error.code) {
-          case 'auth/user-not-found':
-            Alert.alert('Erro', 'Usuário não cadastrado.');
-            break;
-          case 'auth/wrong-password':
-            Alert.alert('Erro', 'Erro na senha.');
-            break;
-          case 'auth/invalid-email':
-            Alert.alert('Erro', 'Email inválido.');
-            break;
-          case 'auth/user-disabled':
-            Alert.alert('Erro', 'Usuário desabilitado.');
-            break;
-        }
+    let msgError = '';
+    if (email && password) {
+      setLoading(true);
+      msgError = await signIn(email, password);
+      if (msgError === 'ok') {
+        setLoading(false);
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 0,
+            routes: [{name: 'AppStack'}],
+          }),
+        );
+      } else {
+        setLoading(false);
+        Alert.alert('Ops!', msgError);
       }
-    } else {
-      Alert.alert('Atenção', 'Você deve preencher todos os campos.');
     }
   };
 
@@ -94,7 +59,7 @@ const SignIn = ({navigation}) => {
           />
           <TextInput
             style={styles.input}
-            secureTextEntry={showPass}
+            secureTextEntry={true}
             placeholder="Senha"
             keyboardType="default"
             returnKeyType="go"
@@ -102,11 +67,10 @@ const SignIn = ({navigation}) => {
           />
           <Text
             style={styles.textEsqueceuSenha}
-            onPress={() => navigation.navigate('Remember')}>
+            onPress={() => navigation.navigate('ForgotPassWord')}>
             Esqueceu sua senha?
           </Text>
-          <MyButtom text="Entrar" onClick={entrar} />
-          {/* <MyButtom text="Lembrar senha" onClick={rememberPassword(email)} /> */}
+          <MyButtom text="ENTRAR" onClick={entrar} />
         </View>
         <View style={styles.divInferior}>
           <View style={styles.divOuHr}>
@@ -122,9 +86,9 @@ const SignIn = ({navigation}) => {
               Cadastre-se
             </Text>
           </View>
-          {/* {loading && <Loading />} */}
         </View>
       </ScrollView>
+      {loading && <Loading />}
     </SafeAreaView>
   );
 };
@@ -154,7 +118,7 @@ const styles = StyleSheet.create({
   input: {
     width: '95%',
     height: 50,
-    borderBottomColor: 'grey',
+    borderBottomColor: COLORS.grey,
     borderBottomWidth: 2,
     fontSize: 16,
     paddingLeft: 2,
@@ -162,14 +126,14 @@ const styles = StyleSheet.create({
   },
   textEsqueceuSenha: {
     fontSize: 15,
-    color: 'blue',
+    color: COLORS.accentSecundary,
     alignSelf: 'flex-end',
     marginTop: 10,
     marginBottom: 10,
   },
   divOuHr: {
     width: '100%',
-    height: 30,
+    height: 25,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
@@ -177,14 +141,14 @@ const styles = StyleSheet.create({
   divHr: {
     width: '30%',
     height: 1,
-    borderBottomColor: 'grey',
+    borderBottomColor: COLORS.grey,
     borderBottomWidth: 2,
   },
   textOu: {
     marginLeft: 20,
     marginRight: 20,
     fontSize: 20,
-    color: 'grey',
+    color: COLORS.grey,
   },
   divCadastrarSe: {
     flex: 1,
@@ -198,7 +162,7 @@ const styles = StyleSheet.create({
   },
   textCadastrarSe: {
     fontSize: 16,
-    color: 'blue',
+    color: COLORS.accentSecundary,
     marginLeft: 5,
   },
 });

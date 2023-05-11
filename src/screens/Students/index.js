@@ -1,50 +1,96 @@
 /* eslint-disable react/jsx-no-duplicate-props */
-import React from 'react';
+import React, {useContext, useState} from 'react';
+import {View, StyleSheet, FlatList} from 'react-native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/Ionicons';
+import {StudentContext} from '../../context/StudentProvider';
+import AddFloatButton from '../../components/AddFloatButton';
 
-import StudentsTab from './StudensTab';
-// import MapStudentsTab from './MapStudentsTab';
 import {COLORS} from '../../assets/colors';
+import {AuthUserContext} from '../../context/AuthUserProvider';
+import {CommonActions} from '@react-navigation/native';
+import SearchBar from '../../components/SearchBar';
+import Item from './Item';
 
 const Tab = createBottomTabNavigator();
 
-const Students = () => {
+const Students = ({navigation}) => {
+
+  const {signOut} = useContext(AuthUserContext);
+  const {students} = useContext(StudentContext);
+
+  const filterByName = text => {
+    if (text !== '') {
+      let a = [];
+      // estudantes.forEach(e => {
+      //   if (e.nome.toLowerCase().includes(text.toLowerCase())) {
+      //     a.push(e);
+      //   }
+      // });
+  
+      a.push(
+        ...students.filter(e =>
+          e.nome.toLowerCase().includes(text.toLowerCase()),
+        ),
+      );
+  
+      if (a.length > 0) {
+        setEstudantesTemp(a);
+      }
+    } else {
+      setEstudantesTemp([]);
+    }
+  };
+
+  const routeStudent = value => {
+    // console.log(value.nome);
+    navigation.navigate('Aluno', {
+      value,
+    });
+  };
+
+  const renderItem = ({item}) => (
+    // console.log(item);
+    <Item item={item} onPress={() => routeStudent(item)} />
+  );
+
+  function sair() {
+    console.log("AQUi");
+    if (signOut()) {
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{name: 'AuthStack'}],
+        }),
+      );
+    } else {
+      Alert.alert(
+        'Ops!',
+        'Estamos com problemas para realizar essa operação.\nPor favor, contate o administrador.',
+      );
+    }
+  }
+
   return (
-    <Tab.Navigator
-      tabBarOptions={{
-        initialRouteName: 'EstudantesTab',
-        activeTintColor: COLORS.primary,
-        labelStyle: {
-          height: 18,
-          fontSize: 12,
-          margin: 0,
-          fontWeight: 'bold',
-        },
-        style: {backgroundColor: COLORS.white},
-        showIcon: true,
-      }}>
-      <Tab.Screen
-        name="EstudantesTab"
-        component={StudentsTab}
-        options={{
-          tabBarLabel: 'Alunos',
-          tabBarIcon: () => (
-            <Icon name="people" color={COLORS.primary} size={20} />
-          ),
-        }}
+
+    <View style={styles.container}>
+      {/* <SearchBar setSearch={filterByName} /> */}
+      
+      <FlatList
+        data={students}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.uid}
       />
-      {/* <Tab.Screen
-        name="EstudantesMapTab"
-        component={MapStudentsTab}
-        options={{
-          tabBarLabel: 'Localização',
-          tabBarIcon: () => (
-            <Icon name="map" color={COLORS.primary} size={20} />
-          ),
-        }}
-      /> */}
-    </Tab.Navigator>
+      <AddFloatButton onClick={() => sair()} />
+      {/* <AddFloatButton onClick={() => routeStudent(null)} /> */}
+    </View>
   );
 };
 export default Students;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 5,
+  },
+});
