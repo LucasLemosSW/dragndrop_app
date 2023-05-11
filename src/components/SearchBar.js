@@ -6,6 +6,7 @@ export default function ({setSearch}) {
     <View>
       <TextInput
         placeholder="digite o nome do aluno"
+        backgroundColor='#478b5d'
         keyboardType="default"
         returnKeyType="next"
         onChangeText={t => setSearch(t)}

@@ -91,9 +91,9 @@ export const StudentProvider = ({children}) => {
       });
   };
 
-  const deleteStudent = async (uid) => {
+  const del = async (uid) => {
     await firestore()
-      .collection('students')
+      .collection('estudantes')
       .doc(uid)
       .delete()
       .then(() => {
@@ -110,7 +110,7 @@ export const StudentProvider = ({children}) => {
         students,
         getStudents,
         save,
-        deleteStudent,
+        del,
       }}>
       {children}
     </StudentContext.Provider>

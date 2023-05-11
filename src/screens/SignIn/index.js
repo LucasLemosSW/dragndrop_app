@@ -53,6 +53,7 @@ const SignIn = ({navigation}) => {
           <TextInput
             style={styles.input}
             placeholder="Email"
+            placeholderTextColor="grey"
             keyboardType="email-address"
             returnKeyType="next"
             onChangeText={t => setEmail(t)}
@@ -61,13 +62,14 @@ const SignIn = ({navigation}) => {
             style={styles.input}
             secureTextEntry={true}
             placeholder="Senha"
+            placeholderTextColor="grey"
             keyboardType="default"
             returnKeyType="go"
             onChangeText={t => setPassword(t)}
           />
           <Text
             style={styles.textEsqueceuSenha}
-            onPress={() => navigation.navigate('ForgotPassWord')}>
+            onPress={() => navigation.navigate('Remember')}>
             Esqueceu sua senha?
           </Text>
           <MyButtom text="ENTRAR" onClick={entrar} />
@@ -119,14 +121,16 @@ const styles = StyleSheet.create({
     width: '95%',
     height: 50,
     borderBottomColor: COLORS.grey,
+    color: COLORS.black,
     borderBottomWidth: 2,
     fontSize: 16,
     paddingLeft: 2,
     paddingBottom: 1,
+    
   },
   textEsqueceuSenha: {
     fontSize: 15,
-    color: COLORS.accentSecundary,
+    color: 'blue',
     alignSelf: 'flex-end',
     marginTop: 10,
     marginBottom: 10,
@@ -158,11 +162,12 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   textNormal: {
-    fontSize: 18,
+    fontSize: 16,
+    color: COLORS.darkGrey,
   },
   textCadastrarSe: {
     fontSize: 16,
-    color: COLORS.accentSecundary,
+    color: 'blue',
     marginLeft: 5,
   },
 });

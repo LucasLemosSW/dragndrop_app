@@ -18,6 +18,7 @@ const Students = ({navigation}) => {
 
   const {signOut} = useContext(AuthUserContext);
   const {students} = useContext(StudentContext);
+  const [estudantesTemp, setEstudantesTemp] = useState([]);
 
   const filterByName = text => {
     if (text !== '') {
@@ -54,35 +55,24 @@ const Students = ({navigation}) => {
     <Item item={item} onPress={() => routeStudent(item)} />
   );
 
-  function sair() {
-    console.log("AQUi");
-    if (signOut()) {
-      navigation.dispatch(
-        CommonActions.reset({
-          index: 0,
-          routes: [{name: 'AuthStack'}],
-        }),
-      );
-    } else {
-      Alert.alert(
-        'Ops!',
-        'Estamos com problemas para realizar essa operação.\nPor favor, contate o administrador.',
-      );
-    }
-  }
-
   return (
 
     <View style={styles.container}>
-      {/* <SearchBar setSearch={filterByName} /> */}
+      <SearchBar setSearch={filterByName} />
       
-      <FlatList
+      {/* <FlatList
         data={students}
         renderItem={renderItem}
         keyExtractor={(item) => item.uid}
+      /> */}
+      <FlatList
+        data={estudantesTemp.length > 0 ? estudantesTemp : students}
+        renderItem={({item}) => (
+          <Item item={item} onPress={() => routeStudent(item)} key={item.uid} />
+        )}
+        keyExtractor={item => item.uid}
       />
-      <AddFloatButton onClick={() => sair()} />
-      {/* <AddFloatButton onClick={() => routeStudent(null)} /> */}
+      <AddFloatButton onClick={() => routeStudent(null)} />
     </View>
   );
 };

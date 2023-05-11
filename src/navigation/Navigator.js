@@ -11,11 +11,10 @@ import SignUp from '../screens/SignUp';
 import Remember from '../screens/Remember';
 
 import Students from '../screens/Students';
+import User from '../screens/User';
 
-// import Menu from '../screens/Menu';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {COLORS} from '../assets/colors';
-// import PerfilUsuario from '../screens/PerfilUsuario';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -49,13 +48,15 @@ const AppStack = () => (
         ),
       }}
     />
-    {/* <Tab.Screen
-      component={Student}
-      name="Aluno"
+    <Tab.Screen
+      component={User}
+      name="User"
       options={{
-        presentation: 'modal',
+        tabBarIcon: () => (
+          <Icon name="person" color={COLORS.primary} size={20} />
+      ),
       }}
-    /> */}
+    />
   </Tab.Navigator>
 );
 
