@@ -11,10 +11,13 @@ import SignUp from '../screens/SignUp';
 import Remember from '../screens/Remember';
 
 import Students from '../screens/Students';
+import Products from '../screens/Products';
 import User from '../screens/User';
 
 import Icon from 'react-native-vector-icons/Ionicons';
 import {COLORS} from '../assets/colors';
+import Product from '../screens/Product';
+import ProductMap from '../screens/ProductMap';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -57,6 +60,15 @@ const AppStack = () => (
       ),
       }}
     />
+    <Tab.Screen
+      component={Products}
+      name="Products"
+      options={{
+        tabBarIcon: () => (
+          <Icon name="desktop" color={COLORS.primary} size={20} />
+      ),
+      }}
+    />
   </Tab.Navigator>
 );
 
@@ -72,6 +84,20 @@ const Navigator = () => (
       <Stack.Screen
         component={Student}
         name="Aluno"
+        options={{
+          presentation: 'modal',
+        }}
+      />
+      <Stack.Screen
+        component={Product}
+        name="Produto"
+        options={{
+          presentation: 'modal',
+        }}
+      />
+      <Stack.Screen
+        component={ProductMap}
+        name="ProductMap"
         options={{
           presentation: 'modal',
         }}
